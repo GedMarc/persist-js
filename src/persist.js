@@ -1,16 +1,16 @@
 //
 // Copyright (c) 2008, 2009 Paul Duncan (paul@pablotron.org)
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,7 +21,7 @@
 //
 
 
-/* 
+/*
  * The contents of gears_init.js; we need this because Chrome supports
  * Gears out of the box, but still requires this constructor.  Note that
  * if you include gears_init.js then this function does nothing.
@@ -32,7 +32,7 @@
       return;
   }
 
-  // factory 
+  // factory
   var F = null;
 
   // Firefox
@@ -46,7 +46,7 @@
       if (F.getBuildInfo().indexOf('ie_mobile') != -1){
           F.privateSetGlobalObject(this);
       }
-        
+
     } catch (e) {
       // Safari
       if ((typeof navigator.mimeTypes != 'undefined') && navigator.mimeTypes["application/x-googlegears"]) {
@@ -65,7 +65,7 @@
   if (!F){
       return;
   }
-    
+
 
   // Now set up the objects, being careful not to overwrite anything.
   //
@@ -79,7 +79,7 @@
   if (!google.gears){
       google.gears = {factory: F};
   }
-    
+
 })();
 
 /**
@@ -88,16 +88,16 @@
  */
 Persist = (function() {
   var VERSION = '0.3.1', P, B, esc, init, empty, ec;
-  
+
   ec = (function() {
     var EPOCH = 'Thu, 01-Jan-1970 00:00:01 GMT',
         // milliseconds per day
         RATIO = 1000 * 60 * 60 * 24,
-        // keys to encode 
+        // keys to encode
         KEYS = ['expires', 'path', 'domain'],
         // wrappers for common globals
         esc = escape, un = unescape, doc = document,
-        me; 
+        me;
 
     // private methods
 
@@ -131,7 +131,7 @@ Persist = (function() {
         if (val){
             r.push(key + '=' + val);
         }
-          
+
       }
 
       // append secure (if specified)
@@ -149,18 +149,7 @@ Persist = (function() {
      * This method is private.
      */
     var alive = function() {
-      var k = '__EC_TEST__', 
-          v = new Date();
-
-      // generate test value
-      v = v.toGMTString();
-
-      // set test value
-      this.set(k, v);
-
-      // return cookie test
-      this.enabled = (this.remove(k) == v);
-      return this.enabled;
+        return navigator.cookieEnabled;
     };
 
     // public methods
@@ -192,7 +181,7 @@ Persist = (function() {
        *
        */
       set: function(key, val /*, opt */) {
-        var opt = (arguments.length > 2) ? arguments[2] : {}, 
+        var opt = (arguments.length > 2) ? arguments[2] : {},
             now = get_now(),
             expire_at,
             cfg = {};
@@ -257,7 +246,7 @@ Persist = (function() {
       get: function(key) {
         key = esc(key);
 
-        var c = doc.cookie, 
+        var c = doc.cookie,
             ofs = c.indexOf(key + '='),
             len = ofs + key.length + 1,
             sub = c.substring(0, key.length),
@@ -288,7 +277,7 @@ Persist = (function() {
        *
        */
       remove: function(k) {
-        var r = me.get(k), 
+        var r = me.get(k),
             opt = { expires: EPOCH };
 
         // delete cookie
@@ -308,7 +297,7 @@ Persist = (function() {
        *
        */
       keys: function() {
-        var c = doc.cookie, 
+        var c = doc.cookie,
             ps = c.split('; '),
             i, p, r = [];
 
@@ -332,7 +321,7 @@ Persist = (function() {
        *
        */
       all: function() {
-        var c = doc.cookie, 
+        var c = doc.cookie,
             ps = c.split('; '),
             i, p, r = [];
 
@@ -346,7 +335,7 @@ Persist = (function() {
         return r;
       },
 
-      /* 
+      /*
        * Version of EasyCookie
        */
       version: '0.2.1',
@@ -368,11 +357,11 @@ Persist = (function() {
     // return self
     return me;
   }());
-  
+
   // wrapper for Array.prototype.indexOf, since IE doesn't have it
   var index_of = (function() {
     if (Array.prototype.indexOf){
-      return function(ary, val) { 
+      return function(ary, val) {
         return Array.prototype.indexOf.call(ary, val);
       };
     } else {
@@ -405,18 +394,18 @@ Persist = (function() {
   };
 
   var C = {
-    /* 
+    /*
      * Backend search order.
-     * 
+     *
      * Note that the search order is significant; the backends are
      * listed in order of capacity, and many browsers
      * support multiple backends, so changing the search order could
      * result in a browser choosing a less capable backend.
-     */     
+     */
     search_order: [
       // TODO: air
       'localstorage',
-      'globalstorage', 
+      'globalstorage',
       'gears',
       'cookie',
       'ie',
@@ -428,11 +417,11 @@ Persist = (function() {
 
     // list of backend methods
     methods: [
-      'init', 
-      'get', 
-      'set', 
-      'remove', 
-      'load', 
+      'init',
+      'get',
+      'set',
+      'remove',
+      'load',
       'save',
       'iterate'
       // TODO: clear method?
@@ -442,7 +431,7 @@ Persist = (function() {
     sql: {
       version:  '1', // db schema version
 
-      // XXX: the "IF NOT EXISTS" is a sqlite-ism; fortunately all the 
+      // XXX: the "IF NOT EXISTS" is a sqlite-ism; fortunately all the
       // known DB implementations (safari and gears) use sqlite
       create:   "CREATE TABLE IF NOT EXISTS persist_data (k TEXT UNIQUE NOT NULL PRIMARY KEY, v TEXT NOT NULL)",
       get:      "SELECT v FROM persist_data WHERE k = ?",
@@ -467,7 +456,7 @@ Persist = (function() {
       params: {
         autostart: true
       }
-    } 
+    }
   };
 
   // built-in backends
@@ -581,7 +570,7 @@ Persist = (function() {
           r.close();
         }
       }
-    }, 
+    },
 
     // globalstorage backend (globalStorage, FF2+, IE8+)
     // (src: http://developer.mozilla.org/en/docs/DOM:Storage#globalStorage)
@@ -652,10 +641,10 @@ Persist = (function() {
           this.store.removeItem(key);
 
           return val;
-        } 
+        }
       }
-    }, 
-    
+    },
+
     // localstorage backend (globalStorage, FF2+, IE8+)
     // (src: http://www.whatwg.org/specs/web-apps/current-work/#the-localstorage)
     // also http://msdn.microsoft.com/en-us/library/cc197062(VS.85).aspx#_global
@@ -669,7 +658,7 @@ Persist = (function() {
         // FF: Throws a security error when cookies are disabled
         try {
           // Chrome: window.localStorage is available, but calling set throws a quota exceeded error
-          if (window.localStorage && 
+          if (window.localStorage &&
               window.localStorage.setItem("persistjs_test_local_storage", null) == undefined) {
                   window.localStorage.removeItem("persistjs_test_local_storage");
                   if (/Firefox[\/\s](\d+\.\d+)/.test(navigator.userAgent)) {
@@ -748,8 +737,8 @@ Persist = (function() {
           }
         }
       }
-    }, 
-    
+    },
+
     // IE backend
     ie: {
       prefix:   '_persist_data-',
@@ -768,7 +757,7 @@ Persist = (function() {
         var el = document.createElement('div');
 
         // set element properties
-        // http://msdn.microsoft.com/en-us/library/ms531424(VS.85).aspx 
+        // http://msdn.microsoft.com/en-us/library/ms531424(VS.85).aspx
         // http://www.webreference.com/js/column24/userdata.html
         el.id = id;
         el.style.display = 'none';
@@ -814,7 +803,7 @@ Persist = (function() {
         set: function(key, val) {
           // expand key
           key = esc(key);
-          
+
           // set attribute
           this.el.setAttribute(key, val);
 
@@ -864,7 +853,7 @@ Persist = (function() {
     cookie: {
       delim: ':',
 
-      // 4k limit (low-ball this limit to handle browser weirdness, and 
+      // 4k limit (low-ball this limit to handle browser weirdness, and
       // so we don't hose session cookies)
       size: 4000,
 
@@ -880,8 +869,8 @@ Persist = (function() {
 
         get: function(key, fn ) {
           var val;
-          
-          // expand key 
+
+          // expand key
           key = this.key(key);
 
           // get value
@@ -891,7 +880,7 @@ Persist = (function() {
         },
 
         set: function(key, val, fn ) {
-          // expand key 
+          // expand key
           key = this.key(key);
 
           // save value
@@ -903,14 +892,14 @@ Persist = (function() {
         remove: function(key, val ) {
           var val;
 
-          // expand key 
+          // expand key
           key = this.key(key);
 
           // remove cookie
           val = ec.remove(key);
 
           return val;
-        } 
+        }
       }
     },
 
@@ -956,7 +945,7 @@ Persist = (function() {
             // create new swf object
             B.flash.el = swfobject.createSWF({ id: cfg.id, data: this.o.swf_path || cfg.path, width: cfg.size.w, height: cfg.size.h }, cfg.params, cfg.id);
           }
-          
+
           this.el = B.flash.el;
         },
 
@@ -1094,23 +1083,23 @@ Persist = (function() {
       o = o || {};
       this.name = name;
 
-      // get domain (XXX: does this localdomain fix work?)      
+      // get domain (XXX: does this localdomain fix work?)
       o.domain = o.domain || location.hostname || 'localhost';
-      
+
       // strip port from domain (XXX: will this break ipv6?)
       o.domain = o.domain.replace(/:\d+$/, '');
-      
+
       // Specifically for IE6 and localhost
       o.domain = (o.domain == 'localhost') ? '' : o.domain;
 
       // append localdomain to domains w/o '."
       // (see https://bugzilla.mozilla.org/show_bug.cgi?id=357323)
-      // (file://localhost/ works, see: 
+      // (file://localhost/ works, see:
       // https://bugzilla.mozilla.org/show_bug.cgi?id=469192)
-/* 
+/*
  *       if (!o.domain.match(/\./))
  *         o.domain += '.localdomain';
- */ 
+ */
 
       this.o = o;
 
@@ -1119,7 +1108,7 @@ Persist = (function() {
 
       // set path to root
       o.path = o.path || '/';
-      
+
       if (this.o.search_order) {
         C.search_order = this.o.search_order;
         init();
@@ -1127,7 +1116,7 @@ Persist = (function() {
 
       // call init function
       this.init();
-    } 
+    }
   };
 
   // init persist
